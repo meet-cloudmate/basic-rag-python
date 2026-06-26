@@ -1,0 +1,25 @@
+Retrieval-Augmented Generation (RAG) Overview
+===========================================
+
+RAG combines information retrieval with large language model generation.
+Instead of relying only on the model's training data, RAG retrieves relevant
+document chunks at query time and uses them as context for the answer.
+
+Core pipeline steps:
+
+1. Document loading — read source files (text, markdown, PDF).
+2. Chunking — split documents into smaller overlapping segments.
+3. Embedding — convert each chunk into a dense vector representation.
+4. Indexing — store vectors in a vector database (Chroma).
+5. Retrieval — find the most similar chunks to a user question.
+6. Generation — pass retrieved context and the question to an LLM.
+
+Benefits of RAG:
+
+- Answers are grounded in your private documents.
+- Knowledge can be updated by re-ingesting documents without retraining.
+- Source chunks can be returned for transparency and auditability.
+
+This sample corpus is used by the basic-rag-python API for local development
+and testing. Place additional .txt, .md, or .pdf files in data/documents/
+and call POST /api/v1/documents/ingest to index them.
