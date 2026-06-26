@@ -10,7 +10,7 @@ Core pipeline steps:
 1. Document loading — read source files (text, markdown, PDF).
 2. Chunking — split documents into smaller overlapping segments.
 3. Embedding — convert each chunk into a dense vector representation.
-4. Indexing — store vectors in a vector database (Chroma).
+4. Indexing — store vectors in a vector database (Qdrant).
 5. Retrieval — find the most similar chunks to a user question.
 6. Generation — pass retrieved context and the question to an LLM.
 

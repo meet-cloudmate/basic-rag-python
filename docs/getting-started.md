@@ -41,6 +41,23 @@ RETRIEVAL_TOP_K=4
 OPENAI_CHAT_MODEL=gpt-4o-mini
 ```
 
+### Qdrant (default: local, no server needed)
+
+By default the app uses **embedded Qdrant** and stores vectors in `data/qdrant/`. No extra setup is required.
+
+To use a **remote Qdrant server** instead:
+
+```
+QDRANT_MODE=remote
+QDRANT_URL=http://localhost:6333
+```
+
+Start Qdrant with Docker:
+
+```bash
+docker run -p 6333:6333 -p 6334:6334 qdrant/qdrant
+```
+
 ## 4. Add sample documents
 
 A starter file is included at `data/documents/sample.txt`. Add your own `.txt`, `.md`, or `.pdf` files to the same directory.
@@ -114,7 +131,8 @@ Example response:
 |-------|-----|
 | `OPENAI_API_KEY is not configured` | Set the key in `.env` and restart the server |
 | Empty answers / "I don't know" | Run document ingest first; verify files exist in `data/documents/` |
-| Chroma permission errors | Ensure `data/chroma/` is writable |
+| Qdrant permission errors | Ensure `data/qdrant/` is writable (local mode) |
+| Cannot connect to Qdrant | Check `QDRANT_URL` and that the Qdrant server is running (remote mode) |
 | PDF load failures | Confirm the PDF is text-based (not scanned images only) |
 
 ## Running tests

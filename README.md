@@ -1,15 +1,15 @@
 # Basic RAG Python
 
-A minimal Retrieval-Augmented Generation (RAG) service built with **LangChain**, **FastAPI**, and **uv**.
+A minimal Retrieval-Augmented Generation (RAG) service built with **LangChain**, **FastAPI**, **Qdrant**, and **uv**.
 
-The API lets you ingest documents (`.txt`, `.md`, `.pdf`), store them in a local Chroma vector database, and ask natural-language questions grounded in your corpus.
+The API lets you ingest documents (`.txt`, `.md`, `.pdf`), store them in **Qdrant**, and ask natural-language questions grounded in your corpus.
 
 ## Architecture
 
 ```
 Client → FastAPI (REST) → RAGService → LangChain
                               ├── Document loaders & text splitters
-                              ├── OpenAI embeddings → Chroma (persistent)
+                              ├── OpenAI embeddings → Qdrant (local or remote)
                               └── OpenAI chat model (LCEL RAG chain)
 ```
 
@@ -20,6 +20,7 @@ See [docs/architecture.md](docs/architecture.md) for design decisions and compon
 - Python 3.12+
 - [uv](https://docs.astral.sh/uv/) package manager
 - OpenAI API key (embeddings + chat)
+- Qdrant runs **embedded locally by default** (no separate server required)
 
 ## Quick start
 
@@ -78,15 +79,17 @@ curl -X POST http://localhost:8000/api/v1/query \
 
 ```
 app/
-├── api/v1/          # HTTP routes and versioning
-├── core/            # Config, logging, dependencies
-├── rag/             # RAG pipeline (load, split, embed, retrieve, generate)
-├── schemas/         # Pydantic request/response models
-└── main.py          # FastAPI application factory
+├── api/v1/              # HTTP routes and versioning
+├── core/                # Config, logging, dependencies
+├── rag/
+│   ├── vectorstores/    # Pluggable backends (Qdrant today)
+│   └── ...              # Load, split, chain, service
+├── schemas/             # Pydantic request/response models
+└── main.py              # FastAPI application factory
 data/
-├── documents/       # Local document corpus (git-tracked samples)
-└── chroma/          # Persistent vector store (gitignored)
-docs/                # Architecture and getting-started guides
+├── documents/           # Local document corpus (git-tracked samples)
+└── qdrant/              # Local Qdrant storage (gitignored)
+docs/                    # Architecture and getting-started guides
 ```
 
 ## Configuration
@@ -102,7 +105,25 @@ All settings are driven by environment variables. See [.env.example](.env.exampl
 | `CHUNK_OVERLAP` | `200` | Overlap between chunks |
 | `RETRIEVAL_TOP_K` | `4` | Chunks retrieved per query |
 | `DOCUMENTS_DIR` | `data/documents` | Local ingest directory |
-| `CHROMA_PERSIST_DIR` | `data/chroma` | Vector store path |
+| `VECTOR_STORE_BACKEND` | `qdrant` | Vector store backend |
+| `QDRANT_MODE` | `local` | `local` (embedded) or `remote` (server) |
+| `QDRANT_LOCAL_PATH` | `data/qdrant` | Path for local Qdrant storage |
+| `QDRANT_URL` | `http://localhost:6333` | Remote Qdrant URL |
+| `QDRANT_COLLECTION_NAME` | `rag_documents` | Qdrant collection name |
+
+### Switching to a remote Qdrant server
+
+```bash
+QDRANT_MODE=remote
+QDRANT_URL=http://localhost:6333
+# QDRANT_API_KEY=optional-api-key
+```
+
+Run Qdrant with Docker:
+
+```bash
+docker run -p 6333:6333 qdrant/qdrant
+```
 
 ## Development
 

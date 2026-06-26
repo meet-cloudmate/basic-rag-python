@@ -12,7 +12,8 @@ async def lifespan(_: FastAPI):
     settings = get_settings()
     configure_logging(settings)
     settings.documents_dir.mkdir(parents=True, exist_ok=True)
-    settings.chroma_persist_dir.mkdir(parents=True, exist_ok=True)
+    if settings.qdrant_mode == "local":
+        settings.qdrant_local_path.mkdir(parents=True, exist_ok=True)
     yield
 
 
